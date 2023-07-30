@@ -14,13 +14,13 @@ API позволяет совершать CRUD операции посредст
 ## Установка
 1. Создайте виртуальное окружение и активируйте его:
 `python -m venv venv`
-2. Склонируйте репозиторий:
-`git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git`
 `source venv/bin/activate`  
 Для Windows используйте `venv\Scripts\activate`
-3. Установите зависимости:
+3. Склонируйте репозиторий:
+`git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git`
+4. Установите зависимости:
 `pip install -r .\my_app\requirements.txt`
-4. Создать файл .env со следующей структурой:
+5. Создать файл .env со следующей структурой:
     - DB_HOST='postgres_restaurant'
     - DB_PORT='5432'
     - DB_NAME='Fast_API'
@@ -30,9 +30,9 @@ API позволяет совершать CRUD операции посредст
     - POSTGRES_PASSWORD='postgres'
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
-5. Cоздать образ docker-compose командой 
+6. Cоздать образ docker-compose командой 
 `docker compose build`
-6. Создать контейнеры, на основе собранного образа, командой 
+7. Создать контейнеры, на основе собранного образа, командой 
 `docker copmose up -d`   
 ## Запуск
 Теперь API запущен и доступ к нему можно получить по адресу http://localhost:8000. 
