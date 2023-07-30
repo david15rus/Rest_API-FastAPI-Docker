@@ -16,7 +16,8 @@ API позволяет совершать CRUD операции посредст
 python -m venv venv
 2. Склонируйте репозиторий:
 git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git
-source venv/bin/activate  # Для Windows используйте `venv\Scripts\activate`
+'source venv/bin/activate'  
+# Для Windows используйте `venv\Scripts\activate`
 3. Установите зависимости:
 pip install -r .\my_app\requirements.txt
 4. Создать файл .env со следующей структурой:
@@ -36,4 +37,4 @@ docker copmose up -d
 ## Запуск
 Теперь API запущен и доступ к нему можно получить по адресу http://localhost:8000. 
 Но для запуска тестов потребуется ввести еще одну команду:
-docker exec -it fastapi_restaurant /bin/sh 
+docker exec -it fastapi_restaurant pytest tests/
