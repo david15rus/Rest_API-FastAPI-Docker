@@ -18,7 +18,7 @@ python -m venv venv
 git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git
 source venv/bin/activate  # Для Windows используйте `venv\Scripts\activate`
 3. Установите зависимости:
-pip install -r .\myapp\requirements.txt
+pip install -r .\my_app\requirements.txt
 4. Создать файл .env со следующей структурой:
     - DB_HOST='postgres_restaurant'
     - DB_PORT='5432'
