@@ -13,13 +13,13 @@ API позволяет совершать CRUD операции посредст
 
 ## Установка
 1. Создайте виртуальное окружение и активируйте его:
-python -m venv venv
+`python -m venv venv`
 2. Склонируйте репозиторий:
-git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git
-'source venv/bin/activate'  
-# Для Windows используйте `venv\Scripts\activate`
+`git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git`
+`source venv/bin/activate`  
+Для Windows используйте `venv\Scripts\activate`
 3. Установите зависимости:
-pip install -r .\my_app\requirements.txt
+`pip install -r .\my_app\requirements.txt`
 4. Создать файл .env со следующей структурой:
     - DB_HOST='postgres_restaurant'
     - DB_PORT='5432'
@@ -31,10 +31,10 @@ pip install -r .\my_app\requirements.txt
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
 5. Cоздать образ docker-compose командой 
-docker compose build
+`docker compose build`
 6. Создать контейнеры, на основе собранного образа, командой 
-docker copmose up -d   
+`docker copmose up -d`   
 ## Запуск
 Теперь API запущен и доступ к нему можно получить по адресу http://localhost:8000. 
 Но для запуска тестов потребуется ввести еще одну команду:
-docker exec -it fastapi_restaurant pytest tests/
+`docker exec -it fastapi_restaurant pytest tests/`
