@@ -17,7 +17,7 @@ API позволяет совершать CRUD операции посредст
 `source venv/bin/activate`
 Для Windows используйте `venv\Scripts\activate`
 3. Склонируйте репозиторий:
-`git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git`
+`git clone https://github.com/david15rus/Rest_API-FastAPI-Docker.git`
 4. Установите зависимости:
 `pip install -r .\my_app\requirements.txt`
 5. Создать файл .env со следующей структурой:
