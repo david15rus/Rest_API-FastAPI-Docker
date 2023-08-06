@@ -30,6 +30,7 @@ API позволяет совершать CRUD операции посредст
     - POSTGRES_PASSWORD='postgres'
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
+    - REDIS_URI='redis://redis_app:6379'
 6. Cоздать образ docker-compose командой
 `docker compose build`
 7. Создать контейнеры, на основе собранного образа, командой
