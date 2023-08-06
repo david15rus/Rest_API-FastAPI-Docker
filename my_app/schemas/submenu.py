@@ -1,13 +1,12 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
 class SubMenuSchema(BaseModel):
-    id : str
+    id: str
     title: str
     description: str
-    menu_id : str
+    menu_id: str
+    dishes_count: int | None = 0
 
 
 class SubMenuSchemaAdd(BaseModel):

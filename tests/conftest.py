@@ -1,28 +1,27 @@
 import asyncio
+import os
 from typing import AsyncGenerator
 
 import pytest
+from dotenv import load_dotenv
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from my_app.config import get_session
-from my_app.models.models import Base
 from my_app.main_onion import app
-
-from dotenv import load_dotenv
-import os
+from my_app.models.models import Base
 
 load_dotenv()
 
-DB_HOST_TEST = os.environ.get("DB_HOST")
-DB_NAME_TEST = os.environ.get("DB_NAME")
-DB_PORT_TEST = os.environ.get("DB_PORT")
-DB_PASSWORD_TEST = os.environ.get("DB_PASSWORD")
-DB_USER_TEST = os.environ.get("DB_USER")
+DB_HOST_TEST = os.environ.get('DB_HOST')
+DB_NAME_TEST = os.environ.get('DB_NAME')
+DB_PORT_TEST = os.environ.get('DB_PORT')
+DB_PASSWORD_TEST = os.environ.get('DB_PASSWORD')
+DB_USER_TEST = os.environ.get('DB_USER')
 
-DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASSWORD_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
+DATABASE_URL_TEST = f'postgresql+asyncpg://{DB_USER_TEST}:{DB_PASSWORD_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}'
 
 engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
@@ -53,7 +52,7 @@ def event_loop(request):
     loop.close()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def ac() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac

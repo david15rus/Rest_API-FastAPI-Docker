@@ -1,36 +1,30 @@
-from typing import List, Optional
+from sqlalchemy import ScalarResult, distinct, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy import select, func, distinct
-
-from my_app.models.models import Menu, SubMenu, Dish
-from my_app.schemas.menu import MenuSchemaAdd, MenuSchemaUpdate, MenuSchema
+from my_app.models.models import Dish, Menu, SubMenu
+from my_app.schemas.menu import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
 
 
 async def create_menu(menu_data: MenuSchemaAdd,
-                      session
-                      ) -> MenuSchema:
+                      session: AsyncSession
+                      ) -> Menu:
     new_menu = Menu(title=menu_data.title, description=menu_data.description)
     session.add(new_menu)
     await session.commit()
     await session.refresh(new_menu)
 
-    return MenuSchema(
-        id=str(new_menu.id),
-        title=new_menu.title,
-        description=new_menu.description
-    )
+    return new_menu
 
 
 async def get_all_menus(skip: int,
                         limit: int,
-                        session
-                        ):
+                        session: AsyncSession
+                        ) -> ScalarResult[MenuSchema]:
     menus = await session.execute(select(Menu).offset(skip).limit(limit))
-
     return menus.scalars()
 
 
-async def get_menu_by_id(menu_id: str, session) -> Optional[Menu]:
+async def get_menu_by_id(menu_id: str, session: AsyncSession) -> MenuSchema | None:
     menu = await session.execute(select(Menu).filter(Menu.id == menu_id))
 
     return menu.scalar_one_or_none()
@@ -38,7 +32,7 @@ async def get_menu_by_id(menu_id: str, session) -> Optional[Menu]:
 
 async def update_menu_by_id(menu_id: str,
                             menu_data: MenuSchemaUpdate,
-                            session):
+                            session: AsyncSession) -> MenuSchema | None:
     updated_menu = await session.execute(select(Menu).filter(Menu.id == menu_id))
     updated_menu = updated_menu.scalar_one_or_none()
 
@@ -50,7 +44,7 @@ async def update_menu_by_id(menu_id: str,
     return updated_menu
 
 
-async def delete_menu(menu_id: str, session):
+async def delete_menu(menu_id: str, session: AsyncSession) -> MenuSchema | None:
     query = select(Menu).filter(Menu.id == menu_id)
     removed_menu = await session.execute(query)
     removed_menu = removed_menu.scalar_one_or_none()
@@ -62,16 +56,16 @@ async def delete_menu(menu_id: str, session):
 
 
 async def get_dish_and_submenus_count(menu_id: str,
-                                      session
-                                      ):
+                                      session: AsyncSession
+                                      ) -> dict[str, int]:
     submenus_table = SubMenu.__table__
     dishes_table = Dish.__table__
 
     query = (
         select(
             Menu,
-            func.count(distinct(submenus_table.c.id)).label("submenus_count"),
-            func.count(distinct(dishes_table.c.id)).label("dishes_count"),
+            func.count(distinct(submenus_table.c.id)).label('submenus_count'),
+            func.count(distinct(dishes_table.c.id)).label('dishes_count'),
         )
         .select_from(Menu)
         .outerjoin(submenus_table, submenus_table.c.menu_id == Menu.id)
@@ -85,7 +79,6 @@ async def get_dish_and_submenus_count(menu_id: str,
     row = result.fetchone()
 
     if row:
-        menu = row[0]
         submenus_count = row[1]
         dishes_count = row[2]
     else:

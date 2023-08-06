@@ -1,11 +1,11 @@
 # FastAPI_project
 
 Данный API предлагается в дух видах: синхронном и асинхронном.
-API позволяет совершать CRUD операции посредством использования ORM SQLAlchemy 
+API позволяет совершать CRUD операции посредством использования ORM SQLAlchemy
 и СУБД PostgresSQL
 
 ## Требования
-Для правильного функционирования API необходимо, что бы 
+Для правильного функционирования API необходимо, что бы
 все версии библиотек и модулей соотвествовали файлу requirements.txt.
 А также версии Python и Postgres:
 - Python 3.10 (или новее)
@@ -14,7 +14,7 @@ API позволяет совершать CRUD операции посредст
 ## Установка
 1. Создайте виртуальное окружение и активируйте его:
 `python -m venv venv`
-`source venv/bin/activate`  
+`source venv/bin/activate`
 Для Windows используйте `venv\Scripts\activate`
 3. Склонируйте репозиторий:
 `git clone https://github.com/david15rus/Rest_API-FastAPI-Docker-.git`
@@ -30,11 +30,11 @@ API позволяет совершать CRUD операции посредст
     - POSTGRES_PASSWORD='postgres'
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
-6. Cоздать образ docker-compose командой 
+6. Cоздать образ docker-compose командой
 `docker compose build`
-7. Создать контейнеры, на основе собранного образа, командой 
-`docker copmose up -d`   
+7. Создать контейнеры, на основе собранного образа, командой
+`docker copmose up -d`
 ## Запуск
-Теперь API запущен и доступ к нему можно получить по адресу http://localhost:8000. 
+Теперь API запущен и доступ к нему можно получить по адресу http://localhost:8000.
 Но для запуска тестов потребуется ввести еще одну команду:
 `docker exec -it fastapi_restaurant pytest tests/`

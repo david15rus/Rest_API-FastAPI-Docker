@@ -1,14 +1,15 @@
-from typing import List, Optional
+from typing import Any
 
-from sqlalchemy import select, func
+from sqlalchemy import ScalarResult, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from my_app.models.models import Menu, SubMenu, Dish
+from my_app.models.models import Dish, SubMenu
 from my_app.schemas.submenu import SubMenuSchema, SubMenuSchemaAdd, SubMenuSchemaUpdate
 
 
 async def create_submenu(menu_id: str,
                          submenu_data: SubMenuSchemaAdd,
-                         session) -> SubMenuSchema:
+                         session: AsyncSession) -> SubMenuSchema:
     new_submenu = SubMenu(title=submenu_data.title, description=submenu_data.description, menu_id=menu_id)
     session.add(new_submenu)
     await session.commit()
@@ -25,13 +26,13 @@ async def create_submenu(menu_id: str,
 async def get_all_submenus(menu_id: str,
                            skip: int,
                            limit: int,
-                           session):
+                           session: AsyncSession) -> ScalarResult[Any]:
     submenus = await session.execute(select(SubMenu).filter(
         SubMenu.menu_id == menu_id).offset(skip).limit(limit))
     return submenus.scalars()
 
 
-async def get_submenu_by_id(menu_id: str, submenu_id: str, session):
+async def get_submenu_by_id(menu_id: str, submenu_id: str, session: AsyncSession) -> SubMenuSchema | None:
     submenu = await session.execute(select(SubMenu).filter(
         SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
 
@@ -41,7 +42,7 @@ async def get_submenu_by_id(menu_id: str, submenu_id: str, session):
 async def update_submenu_by_id(menu_id: str,
                                submenu_id: str,
                                submenu_data: SubMenuSchemaUpdate,
-                               session):
+                               session: AsyncSession) -> SubMenuSchemaUpdate:
     updated_submenu = await session.execute(select(SubMenu).filter(
         SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
     updated_submenu = updated_submenu.scalar_one_or_none()
@@ -54,7 +55,7 @@ async def update_submenu_by_id(menu_id: str,
     return updated_submenu
 
 
-async def delete_submenu(menu_id: str, submenu_id: str, session):
+async def delete_submenu(submenu_id: str, session: AsyncSession) -> SubMenuSchema:
     query = select(SubMenu).filter(
         SubMenu.id == submenu_id)
     removed_submenu = await session.execute(query)
@@ -66,7 +67,7 @@ async def delete_submenu(menu_id: str, submenu_id: str, session):
     return removed_submenu
 
 
-async def get_dish_count(submenu_id: str, session):
+async def get_dish_count(submenu_id: str, session: AsyncSession) -> int:
     query = select(func.count(Dish.id)).filter(Dish.submenu_id == submenu_id)
     result = await session.execute(query)
     dishes_count = result.scalar()
