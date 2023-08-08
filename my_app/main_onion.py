@@ -1,3 +1,4 @@
+import logging
 import os
 
 from cashews import cache
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from my_app.config import get_session
 from my_app.endpoints import dish, menu, submenu
 
+logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 REDIS_URI = os.environ.get('REDIS_URI')

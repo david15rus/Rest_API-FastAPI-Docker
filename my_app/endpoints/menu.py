@@ -1,6 +1,7 @@
+from typing import Any
+
 from cashews import cache
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
@@ -12,11 +13,11 @@ router = APIRouter()
 menu_service = MenuService()
 
 
-@router.get('/', response_model=list[MenuSchema], name='get_menus')
+@router.get('/', response_model=list[MenuSchema], name='get_menus', status_code=200)
 @cache(ttl='2m')
 async def read_menus(skip: int = 0, limit: int = 10,
                      session: AsyncSession = Depends(get_session)) -> \
-        JSONResponse:
+        list[MenuSchema]:
     """
     Получает все записи из БД из таблицы Menu.
 
@@ -29,24 +30,13 @@ async def read_menus(skip: int = 0, limit: int = 10,
         JSONResponse: Ответ с информацией о меню.
     """
     menus = await menu_service.read_menus(skip, limit, session)
-    response_data = []
-    for menu in menus:
-        response_data.append(
-            {
-                'id': menu.id,
-                'title': menu.title,
-                'description': menu.description,
-                'submenus_count': menu.submenus_count,
-                'dishes_count': menu.dishes_count,
-            }
-        )
-    return JSONResponse(content=response_data, status_code=200)
+    return menus
 
 
-@router.get('/{menu_id}', response_model=MenuSchema, name='get_menu')
+@router.get('/{menu_id}', response_model=MenuSchema, name='get_menu', status_code=200)
 @cache(ttl='2m')
 async def read_one_menu(menu_id: str, session: AsyncSession = Depends(
-        get_session)) -> JSONResponse:
+        get_session)) -> MenuSchema:
     """
     Получает одну запись из БД из таблицы Menu по указанному идентификатору.
 
@@ -62,23 +52,15 @@ async def read_one_menu(menu_id: str, session: AsyncSession = Depends(
         не найдено в базе данных.
     """
     menu = await menu_service.read_one_menu(menu_id, session)
-    return JSONResponse(
-        content={
-            'id': menu.id,
-            'title': menu.title,
-            'description': menu.description,
-            'submenus_count': menu.submenus_count,
-            'dishes_count': menu.dishes_count,
-        },
-        status_code=200)
+    return menu
 
 
-@router.post('/', response_model=MenuSchema, name='post_menu')
+@router.post('/', response_model=MenuSchema, name='post_menu', status_code=201)
 @cache.invalidate(read_menus)
 @cache.invalidate(read_one_menu)
 async def create_menu(menu_data: MenuSchemaAdd,
                       session: AsyncSession = Depends(
-                          get_session)) -> JSONResponse:
+                          get_session)) -> MenuSchema:
     """
     Добавляет запись в БД в таблицу Menu.
 
@@ -90,15 +72,7 @@ async def create_menu(menu_data: MenuSchemaAdd,
         JSONResponse: Ответ с информацией о меню.
     """
     new_menu = await menu_service.create_menu(menu_data, session)
-    return JSONResponse(
-        content={
-            'id': new_menu.id,
-            'title': new_menu.title,
-            'description': new_menu.description,
-            'submenus_count': new_menu.submenus_count,
-            'dishes_count': new_menu.dishes_count,
-        },
-        status_code=201)
+    return new_menu
 
 
 @router.patch('/{menu_id}', response_model=MenuSchema, name='patch_menu')
@@ -106,7 +80,7 @@ async def create_menu(menu_data: MenuSchemaAdd,
 @cache.invalidate(read_one_menu)
 async def update_menu(menu_id: str, menu_data: MenuSchemaUpdate,
                       session: AsyncSession = Depends(
-                          get_session)) -> JSONResponse:
+                          get_session)) -> MenuSchema:
     """
     Обновляет запись в БД в таблице Menu по указанному идентификатору.
 
@@ -123,22 +97,14 @@ async def update_menu(menu_id: str, menu_data: MenuSchemaUpdate,
         не найдено в базе данных.
     """
     updated_menu = await menu_service.update_menu(menu_id, menu_data, session)
-    return JSONResponse(
-        content={
-            'id': updated_menu.id,
-            'title': updated_menu.title,
-            'description': updated_menu.description,
-            'submenus_count': updated_menu.submenus_count,
-            'dishes_count': updated_menu.dishes_count,
-        },
-        status_code=200)
+    return updated_menu
 
 
 @router.delete('/{menu_id}', response_model=None, name='delete_menu')
 @cache.invalidate(read_menus)
 @cache.invalidate(read_one_menu)
 async def delete_menu(menu_id: str, session: AsyncSession = Depends(
-        get_session)) -> JSONResponse:
+        get_session)) -> dict[Any, Any]:
     """
     Удаляет запись из БД из таблицы Menu по указанному идентификатору.
 
@@ -154,6 +120,6 @@ async def delete_menu(menu_id: str, session: AsyncSession = Depends(
     """
     removed_menu = await menu_service.delete_menu(menu_id, session)
     if removed_menu:
-        return JSONResponse(content={}, status_code=200)
+        return {}
 
     raise HTTPException(status_code=404, detail='menu not found')

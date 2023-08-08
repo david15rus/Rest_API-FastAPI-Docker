@@ -25,7 +25,7 @@ async def test_create_dish(ac: AsyncClient):
                              json={
                                  'title': 'Testing_dish3.1',
                                  'description': 'Testing_description3.1',
-                                 'price': 125.125
+                                 'price': '125.125'
                              })
 
     assert response.status_code == 201
@@ -85,7 +85,7 @@ async def test_read_dish(ac: AsyncClient):
                              json={
                                  'title': 'Testing_dish3.3',
                                  'description': 'Testing_description3.3',
-                                 'price': 125.125
+                                 'price': '125.125'
                              })
 
     dish_id = response.json()['id']
@@ -126,7 +126,7 @@ async def test_update_dish(ac: AsyncClient):
                              json={
                                  'title': 'Testing_dish3.4',
                                  'description': 'Testing_description3.4',
-                                 'price': 125.125
+                                 'price': '125.125'
                              })
 
     dish_id = response.json()['id']
@@ -135,7 +135,7 @@ async def test_update_dish(ac: AsyncClient):
                               json={
                                   'title': 'Change_title',
                                   'description': 'Change_description',
-                                  'price': 255.255
+                                  'price': '255.255'
                               })
     assert response.status_code == 200
 
@@ -168,7 +168,7 @@ async def test_delete_submenu(ac: AsyncClient):
                              json={
                                  'title': 'Testing_dish3.5',
                                  'description': 'Testing_description3.5',
-                                 'price': 125.125
+                                 'price': '125.125'
                              })
 
     dish_id = response.json()['id']

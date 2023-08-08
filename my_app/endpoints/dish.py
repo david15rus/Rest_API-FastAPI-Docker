@@ -1,6 +1,7 @@
+from typing import Any
+
 from cashews import cache
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
@@ -12,9 +13,10 @@ router = APIRouter()
 dish_service = DishService()
 
 
-@router.get('/', response_model=DishSchema, name='get_dishes')
+@router.get('/', response_model=list[DishSchema], name='get_dishes', status_code=200)
 @cache(ttl='2m')
-async def read_dish(submenu_id: str, skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def read_dishes(submenu_id: str, skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)) -> \
+        list[DishSchema]:
     """
     Получает список блюд для указанного подменю.
 
@@ -28,22 +30,12 @@ async def read_dish(submenu_id: str, skip: int = 0, limit: int = 10, session: As
        JSONResponse: Список блюд для указанного подменю.
     """
     dishes = await dish_service.read_dishes(submenu_id, skip, limit, session)
-    response_data = []
-    for dish in dishes:
-        response_data.append(
-            {
-                'id': dish.id,
-                'title': dish.title,
-                'description': dish.description,
-                'price': str(dish.price),
-            }
-        )
-    return JSONResponse(content=response_data, status_code=200)
+    return dishes
 
 
-@router.get('/{dish_id}', response_model=DishSchema, name='get_dish')
+@router.get('/{dish_id}', response_model=DishSchema, name='get_dish', status_code=200)
 @cache(ttl='2m')
-async def read_one_dish(submenu_id: str, dish_id: str, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def read_one_dish(submenu_id: str, dish_id: str, session: AsyncSession = Depends(get_session)) -> DishSchema:
     """
     Получает информацию о конкретном блюде для указанного подменю.
 
@@ -59,20 +51,13 @@ async def read_one_dish(submenu_id: str, dish_id: str, session: AsyncSession = D
         HTTPException: Если блюдо не найдено.
     """
     dish = await dish_service.read_one_dish(submenu_id, dish_id, session)
-    return JSONResponse(
-        content={
-            'id': dish.id,
-            'title': dish.title,
-            'description': dish.description,
-            'price': str(dish.price),
-        },
-        status_code=200)
+    return dish
 
 
-@router.post('/', response_model=DishSchema, name='post_dish')
-@cache.invalidate(read_dish)
+@router.post('/', response_model=DishSchema, name='post_dish', status_code=201)
+@cache.invalidate(read_dishes)
 @cache.invalidate(read_one_dish)
-async def create_dish(submenu_id: str, dish_data: DishSchemaAdd, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def create_dish(submenu_id: str, dish_data: DishSchemaAdd, session: AsyncSession = Depends(get_session)) -> DishSchema:
     """
     Добавляет запись в БД в таблице Dish для указанного подменю по id.
 
@@ -85,20 +70,13 @@ async def create_dish(submenu_id: str, dish_data: DishSchemaAdd, session: AsyncS
         JSONResponse: Ответ со списком блюд для указанного подменю.
     """
     new_dish = await dish_service.create_dish(submenu_id, dish_data, session)
-    return JSONResponse(
-        content={
-            'id': new_dish.id,
-            'title': new_dish.title,
-            'description': new_dish.description,
-            'price': str(new_dish.price),
-        },
-        status_code=201)
+    return new_dish
 
 
-@router.patch('/{dish_id}', response_model=DishSchema, name='patch_dish')
-@cache.invalidate(read_dish)
+@router.patch('/{dish_id}', response_model=DishSchema, name='patch_dish', status_code=200)
+@cache.invalidate(read_dishes)
 @cache.invalidate(read_one_dish)
-async def update_dish(submenu_id: str, dish_id: str, dish_data: DishSchemaUpdate, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def update_dish(submenu_id: str, dish_id: str, dish_data: DishSchemaUpdate, session: AsyncSession = Depends(get_session)) -> DishSchema:
     """
     Обновляет информацию о блюде в указанном подменю.
 
@@ -112,20 +90,14 @@ async def update_dish(submenu_id: str, dish_id: str, dish_data: DishSchemaUpdate
         JSONResponse: Ответ с информацией об обновленном блюде.
     """
     updated_dish = await dish_service.update_dish(submenu_id, dish_id, dish_data, session)
-    return JSONResponse(
-        content={
-            'id': updated_dish.id,
-            'title': updated_dish.title,
-            'description': updated_dish.description,
-            'price': str(updated_dish.price),
-        },
-        status_code=200)
+    return updated_dish
 
 
-@router.delete('/{dish_id}', response_model=None, name='delete_dish')
-@cache.invalidate(read_dish)
+@router.delete('/{dish_id}', response_model=None, name='delete_dish', status_code=200)
+@cache.invalidate(read_dishes)
 @cache.invalidate(read_one_dish)
-async def delete_dish(submenu_id: str, dish_id: str, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def delete_dish(submenu_id: str, dish_id: str, session: AsyncSession = Depends(get_session)) -> \
+        dict[Any, Any]:
     """
     Удаляет указанное блюдо из подменю.
 
@@ -143,6 +115,6 @@ async def delete_dish(submenu_id: str, dish_id: str, session: AsyncSession = Dep
     """
     removed_dish = await dish_service.delete_dish(submenu_id, dish_id, session)
     if removed_dish:
-        return JSONResponse(content={}, status_code=200)
+        return {}
 
     raise HTTPException(status_code=404, detail='dish not found')

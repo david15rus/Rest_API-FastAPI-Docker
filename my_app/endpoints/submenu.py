@@ -1,6 +1,7 @@
+from typing import Any
+
 from cashews import cache
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
@@ -12,9 +13,10 @@ router = APIRouter()
 submenu_service = SubMenuService()
 
 
-@router.get('/', response_model=list[SubMenuSchema], name='get_submenus')
+@router.get('/', response_model=list[SubMenuSchema], name='get_submenus', status_code=200)
 @cache(ttl='2m')
-async def read_submenus(menu_id: str, skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def read_submenus(menu_id: str, skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)) -> \
+        list[SubMenuSchema]:
     """
     Получает все записи из БД из таблицы SubMenu для указанного меню по его id.
 
@@ -28,23 +30,12 @@ async def read_submenus(menu_id: str, skip: int = 0, limit: int = 10, session: A
        JSONResponse: JSON-ответ с информацией о подменю c кодом 200.
     """
     submenus = await submenu_service.read_submenus(menu_id, skip, limit, session)
-    response_data = []
-    for submenu in submenus:
-        response_data.append(
-            {
-                'id': submenu.id,
-                'title': submenu.title,
-                'description': submenu.description,
-                'menu_id': submenu.menu_id,
-                'dishes_count': submenu.dishes_count,
-            }
-        )
-    return JSONResponse(content=response_data, status_code=200)
+    return submenus
 
 
-@router.get('/{submenu_id}', response_model=SubMenuSchema, name='get_submenu')
+@router.get('/{submenu_id}', response_model=SubMenuSchema, name='get_submenu', status_code=200)
 @cache(ttl='2m')
-async def read_one_submenu(menu_id: str, submenu_id: str, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def read_one_submenu(menu_id: str, submenu_id: str, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Получает одну запись о конкретном подменю из БД из таблицы SubMenu
     для указанного меню по его id.
@@ -62,21 +53,13 @@ async def read_one_submenu(menu_id: str, submenu_id: str, session: AsyncSession 
         найдены в базе данных.
     """
     submenu = await submenu_service.read_one_submenu(menu_id, submenu_id, session)
-    return JSONResponse(
-        content={
-            'id': submenu.id,
-            'title': submenu.title,
-            'description': submenu.description,
-            'menu_id': submenu.menu_id,
-            'dishes_count': submenu.dishes_count,
-        },
-        status_code=200)
+    return submenu
 
 
-@router.post('/', response_model=SubMenuSchema, name='post_submenu')
+@router.post('/', response_model=SubMenuSchema, name='post_submenu', status_code=201)
 @cache.invalidate(read_submenus)
 @cache.invalidate(read_one_submenu)
-async def create_submenu(menu_id: str, submenu_data: SubMenuSchemaAdd, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def create_submenu(menu_id: str, submenu_data: SubMenuSchemaAdd, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Добавляет запись в БД в таблице SubMenu для указанного меню по id.
 
@@ -89,21 +72,13 @@ async def create_submenu(menu_id: str, submenu_data: SubMenuSchemaAdd, session: 
         JSONResponse: JSON-ответ с информацией о созданном подменю и кодом 201.
     """
     new_submenu = await submenu_service.create_submenu(menu_id, submenu_data, session)
-    return JSONResponse(
-        content={
-            'id': new_submenu.id,
-            'title': new_submenu.title,
-            'description': new_submenu.description,
-            'menu_id': new_submenu.menu_id,
-            'dishes_count': new_submenu.dishes_count,
-        },
-        status_code=201)
+    return new_submenu
 
 
-@router.patch('/{submenu_id}', response_model=None, name='patch_submenu')
+@router.patch('/{submenu_id}', response_model=None, name='patch_submenu', status_code=200)
 @cache.invalidate(read_submenus)
 @cache.invalidate(read_one_submenu)
-async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSchemaUpdate, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSchemaUpdate, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Обновляет запись в БД в таблице SubMenu по указанному идентификатору
     подменю для указанного меню.
@@ -123,21 +98,14 @@ async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSch
        найдены в базе данных.
     """
     updated_submenu = await submenu_service.update_submenu(menu_id, submenu_id, submenu_data, session)
-    return JSONResponse(
-        content={
-            'id': updated_submenu.id,
-            'title': updated_submenu.title,
-            'description': updated_submenu.description,
-            'menu_id': updated_submenu.menu_id,
-            'dishes_count': updated_submenu.dishes_count,
-        },
-        status_code=200)
+    return updated_submenu
 
 
-@router.delete('/{submenu_id}', response_model=None, name='delete_submenu')
+@router.delete('/{submenu_id}', response_model=None, name='delete_submenu', status_code=200)
 @cache.invalidate(read_submenus)
 @cache.invalidate(read_one_submenu)
-async def delete_submenu(submenu_id: str, session: AsyncSession = Depends(get_session)) -> JSONResponse:
+async def delete_submenu(submenu_id: str, session: AsyncSession = Depends(get_session)) -> \
+        dict[Any, Any]:
     """
     Удаляет запись из БД из таблицы SubMenu по указанному идентификатору
     подменю для указанного меню.
@@ -155,6 +123,6 @@ async def delete_submenu(submenu_id: str, session: AsyncSession = Depends(get_se
     """
     removed_submenu = await submenu_service.delete_submenu(submenu_id, session)
     if removed_submenu:
-        return JSONResponse(content={}, status_code=200)
+        return {}
 
     raise HTTPException(status_code=404, detail='submenu not found')

@@ -11,18 +11,12 @@ async def create_dish(submenu_id: str,
                       dish_data: DishSchemaAdd,
                       session: AsyncSession) -> DishSchema:
     new_dish = Dish(title=dish_data.title, description=dish_data.description,
-                    submenu_id=submenu_id, price=dish_data.price)
+                    submenu_id=submenu_id, price=float(dish_data.price))
     session.add(new_dish)
     await session.commit()
     await session.refresh(new_dish)
 
-    return DishSchema(
-        id=str(new_dish.id),
-        title=new_dish.title,
-        description=new_dish.description,
-        price=str(round(new_dish.price, 2)),
-        submenu_id=submenu_id,
-    )
+    return new_dish
 
 
 async def get_all_dishes(submenu_id: str,
@@ -51,7 +45,7 @@ async def update_dish_by_id(submenu_id: str,
 
     updated_dish.title = dish_data.title
     updated_dish.description = dish_data.description
-    updated_dish.price = dish_data.price
+    updated_dish.price = float(dish_data.price)
     await session.commit()
     await session.refresh(updated_dish)
 

@@ -14,7 +14,7 @@ class DishService:
             id=str(new_dish.id),
             title=new_dish.title,
             description=new_dish.description,
-            price=round(new_dish.price, 2),
+            price=str(round(float(new_dish.price), 2)),
             submenu_id=str(new_dish.submenu_id)
         )
 
@@ -30,7 +30,7 @@ class DishService:
                     id=str(dish.id),
                     title=dish.title,
                     description=dish.description,
-                    price=round(dish.price, 2),
+                    price=str(round(float(dish.price), 2)),
                     submenu_id=str(dish.submenu_id)
                 )
             )
@@ -47,7 +47,7 @@ class DishService:
             id=str(dish.id),
             title=dish.title,
             description=dish.description,
-            price=round(dish.price, 2),
+            price=str(round(float(dish.price), 2)),
             submenu_id=str(dish.submenu_id)
         )
 
@@ -63,7 +63,7 @@ class DishService:
             id=str(updated_dish.id),
             title=updated_dish.title,
             description=updated_dish.description,
-            price=round(updated_dish.price, 2),
+            price=str(round(float(updated_dish.price), 2)),
             submenu_id=str(updated_dish.submenu_id)
         )
 
@@ -74,6 +74,6 @@ class DishService:
             id=str(deleted_dish.id),
             title=deleted_dish.title,
             description=deleted_dish.description,
-            price=round(deleted_dish.price, 2),
+            price=str(round(float(deleted_dish.price), 2)),
             submenu_id=str(deleted_dish.submenu_id)
         )
