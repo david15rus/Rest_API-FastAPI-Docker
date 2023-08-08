@@ -16,7 +16,7 @@ from my_app.models.models import Base
 load_dotenv()
 
 DB_HOST_TEST = os.environ.get('DB_HOST')
-DB_NAME_TEST = os.environ.get('DB_NAME_TEST')
+DB_NAME_TEST = os.environ.get('DB_NAME')
 DB_PORT_TEST = os.environ.get('DB_PORT')
 DB_PASSWORD_TEST = os.environ.get('DB_PASSWORD')
 DB_USER_TEST = os.environ.get('DB_USER')
