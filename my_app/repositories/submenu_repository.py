@@ -15,12 +15,7 @@ async def create_submenu(menu_id: str,
     await session.commit()
     await session.refresh(new_submenu)
 
-    return SubMenuSchema(
-        id=str(new_submenu.id),
-        title=new_submenu.title,
-        description=new_submenu.description,
-        menu_id=menu_id,
-    )
+    return new_submenu
 
 
 async def get_all_submenus(menu_id: str,
