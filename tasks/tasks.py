@@ -15,7 +15,7 @@ DB_PORT = os.environ.get('DB_PORT')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_USER = os.environ.get('DB_USER')
 DATABASE_URL = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-RABBIT_MQ_URL = os.environ.get('RABBIT_MQ_URL')
+RABBIT_MQ_URL = 'pyamqp://guest:guest@rabbitmq:5672//'
 
 celery_app = Celery(
     'tasks',
