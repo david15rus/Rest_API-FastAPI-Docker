@@ -70,7 +70,11 @@ services:
       context: tasks
       dockerfile: Dockerfile_worker
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_NAME: "${DB_NAME}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
       RABBITMQ_URL: "${RABBIT_MQ_URL}"
       RABBITMQ_USER: "guest"
       RABBITMQ_PASS: "guest"
@@ -86,7 +90,6 @@ services:
       context: tasks
       dockerfile: Dockerfile_beat
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
       RABBITMQ_URL: "${RABBIT_MQ_URL}"
       RABBITMQ_USER: "guest"
       RABBITMQ_PASS: "guest"
