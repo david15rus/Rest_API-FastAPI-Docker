@@ -10,7 +10,12 @@ from my_app.schemas.submenu import SubMenuSchema, SubMenuSchemaAdd, SubMenuSchem
 async def create_submenu(menu_id: str,
                          submenu_data: SubMenuSchemaAdd,
                          session: AsyncSession) -> SubMenuSchema:
-    new_submenu = SubMenu(title=submenu_data.title, description=submenu_data.description, menu_id=menu_id)
+    if submenu_data.id:
+        new_submenu = SubMenu(id=submenu_data.id, title=submenu_data.title,
+                              description=submenu_data.description, menu_id=menu_id)
+    else:
+        new_submenu = SubMenu(title=submenu_data.title, description=submenu_data.description, menu_id=menu_id)
+
     session.add(new_submenu)
     await session.commit()
     await session.refresh(new_submenu)

@@ -1,7 +1,7 @@
 from typing import Any
 
 from cashews import cache
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
@@ -15,8 +15,10 @@ submenu_service = SubMenuService()
 
 @router.get('/', response_model=list[SubMenuSchema], name='get_submenus', status_code=200)
 @cache(ttl='2m')
-async def read_submenus(menu_id: str, skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)) -> \
-        list[SubMenuSchema]:
+async def read_submenus(menu_id: str,
+                        skip: int = 0,
+                        limit: int = 10,
+                        session: AsyncSession = Depends(get_session)) -> list[SubMenuSchema]:
     """
     Получает все записи из БД из таблицы SubMenu для указанного меню по его id.
 
@@ -35,7 +37,9 @@ async def read_submenus(menu_id: str, skip: int = 0, limit: int = 10, session: A
 
 @router.get('/{submenu_id}', response_model=SubMenuSchema, name='get_submenu', status_code=200)
 @cache(ttl='2m')
-async def read_one_submenu(menu_id: str, submenu_id: str, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
+async def read_one_submenu(menu_id: str,
+                           submenu_id: str,
+                           session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Получает одну запись о конкретном подменю из БД из таблицы SubMenu
     для указанного меню по его id.
@@ -57,28 +61,34 @@ async def read_one_submenu(menu_id: str, submenu_id: str, session: AsyncSession 
 
 
 @router.post('/', response_model=SubMenuSchema, name='post_submenu', status_code=201)
-@cache.invalidate(read_submenus)
-@cache.invalidate(read_one_submenu)
-async def create_submenu(menu_id: str, submenu_data: SubMenuSchemaAdd, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
+async def create_submenu(menu_id: str,
+                         submenu_data: SubMenuSchemaAdd,
+                         background_tasks: BackgroundTasks,
+                         session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Добавляет запись в БД в таблице SubMenu для указанного меню по id.
 
     Parameters:
         menu_id (str): Идентификатор меню, к которому добавляется подменю.
         submenu_data (SubMenuSchemaAdd): Данные для создания нового подменю.
+        background_tasks (BackgroundTasks): Объект для работы с фоновыми задачами.
         session (AsyncSession): Асинхронная сессия с базой данных.
 
     Returns:
         JSONResponse: JSON-ответ с информацией о созданном подменю и кодом 201.
     """
     new_submenu = await submenu_service.create_submenu(menu_id, submenu_data, session)
+    background_tasks.add_task(cache.invalidate, read_submenus)
+    background_tasks.add_task(cache.invalidate, read_one_submenu)
     return new_submenu
 
 
 @router.patch('/{submenu_id}', response_model=None, name='patch_submenu', status_code=200)
-@cache.invalidate(read_submenus)
-@cache.invalidate(read_one_submenu)
-async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSchemaUpdate, session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
+async def update_submenu(menu_id: str,
+                         submenu_id: str,
+                         submenu_data: SubMenuSchemaUpdate,
+                         background_tasks: BackgroundTasks,
+                         session: AsyncSession = Depends(get_session)) -> SubMenuSchema:
     """
     Обновляет запись в БД в таблице SubMenu по указанному идентификатору
     подменю для указанного меню.
@@ -87,6 +97,7 @@ async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSch
        menu_id (str): Идентификатор меню, к которому принадлежит подменю.
        submenu_id (str): Идентификатор подменю, которое нужно обновить.
        submenu_data (SubMenuSchemaUpdate): данные для обновления записи.
+       background_tasks (BackgroundTasks): Объект для работы с фоновыми задачами.
        session (AsyncSession): Асинхронная сессия с базой данных.
 
     Returns:
@@ -98,20 +109,22 @@ async def update_submenu(menu_id: str, submenu_id: str, submenu_data: SubMenuSch
        найдены в базе данных.
     """
     updated_submenu = await submenu_service.update_submenu(menu_id, submenu_id, submenu_data, session)
+    background_tasks.add_task(cache.invalidate, read_submenus)
+    background_tasks.add_task(cache.invalidate, read_one_submenu)
     return updated_submenu
 
 
 @router.delete('/{submenu_id}', response_model=None, name='delete_submenu', status_code=200)
-@cache.invalidate(read_submenus)
-@cache.invalidate(read_one_submenu)
-async def delete_submenu(submenu_id: str, session: AsyncSession = Depends(get_session)) -> \
-        dict[Any, Any]:
+async def delete_submenu(submenu_id: str,
+                         background_tasks: BackgroundTasks,
+                         session: AsyncSession = Depends(get_session)) -> dict[Any, Any]:
     """
     Удаляет запись из БД из таблицы SubMenu по указанному идентификатору
     подменю для указанного меню.
 
     Parameters:
         submenu_id (str): Идентификатор подменю, которое нужно удалить.
+        background_tasks (BackgroundTasks): Объект для работы с фоновыми задачами.
         session (AsyncSession): Асинхронная сессия с базой данных.
 
     Returns:
@@ -123,6 +136,8 @@ async def delete_submenu(submenu_id: str, session: AsyncSession = Depends(get_se
     """
     removed_submenu = await submenu_service.delete_submenu(submenu_id, session)
     if removed_submenu:
+        background_tasks.add_task(cache.invalidate, read_submenus)
+        background_tasks.add_task(cache.invalidate, read_one_submenu)
         return {}
 
     raise HTTPException(status_code=404, detail='submenu not found')

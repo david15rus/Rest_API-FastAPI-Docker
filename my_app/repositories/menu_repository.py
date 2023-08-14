@@ -1,5 +1,6 @@
 from sqlalchemy import ScalarResult, distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from my_app.models.models import Dish, Menu, SubMenu
 from my_app.schemas.menu import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
@@ -8,7 +9,11 @@ from my_app.schemas.menu import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
 async def create_menu(menu_data: MenuSchemaAdd,
                       session: AsyncSession
                       ) -> Menu:
-    new_menu = Menu(title=menu_data.title, description=menu_data.description)
+    if menu_data.id:
+        new_menu = Menu(id=menu_data.id, title=menu_data.title, description=menu_data.description)
+    else:
+        new_menu = Menu(title=menu_data.title, description=menu_data.description)
+
     session.add(new_menu)
     await session.commit()
     await session.refresh(new_menu)
@@ -22,6 +27,17 @@ async def get_all_menus(skip: int,
                         ) -> ScalarResult[MenuSchema]:
     menus = await session.execute(select(Menu).offset(skip).limit(limit))
     return menus.scalars()
+
+
+async def get_all_menu_with_submenus_and_dishes(session: AsyncSession):
+    query = (
+        select(Menu)
+        .options(selectinload(Menu.submenus).selectinload(SubMenu.dishes))
+    )
+
+    result = await session.execute(query)
+    result = result.scalars()
+    return result
 
 
 async def get_menu_by_id(menu_id: str, session: AsyncSession) -> MenuSchema | None:

@@ -2,7 +2,14 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.repositories import menu_repository
-from my_app.schemas.menu import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
+from my_app.schemas.dish import DishSchema
+from my_app.schemas.menu import (
+    MenuSchema,
+    MenuSchemaAdd,
+    MenuSchemaUpdate,
+    MenuSchemaWithAll,
+)
+from my_app.schemas.submenu import SubMenuSchemaWithDish
 
 
 class MenuService:
@@ -31,6 +38,49 @@ class MenuService:
                     description=menu.description,
                     submenus_count=int(counter['submenus_count']),
                     dishes_count=int(counter['dishes_count']),
+                )
+            )
+        return response_data
+
+    @staticmethod
+    async def read_menus_with_submenus_and_dishes(session: AsyncSession):
+        menus = await menu_repository.get_all_menu_with_submenus_and_dishes(session)
+
+        response_data = []
+        for menu in menus:
+            submenu_data = []
+            for submenu in menu.submenus:
+                dish_data = []
+                for dish in submenu.dishes:
+                    # Добавляем информацию о блюде в список блюд
+                    dish_data.append(
+                        DishSchema(
+                            id=str(dish.id),
+                            title=dish.title,
+                            description=dish.description,
+                            price=str(round(float(dish.price), 2)),
+                            submenu_id=str(dish.submenu_id)
+                        )
+                    )
+
+                # Добавляем информацию о подменю и блюдах в список подменю
+                submenu_data.append(
+                    SubMenuSchemaWithDish(
+                        id=str(submenu.id),
+                        title=submenu.title,
+                        description=submenu.description,
+                        menu_id=str(submenu.menu_id),
+                        dishes=dish_data
+                    )
+                )
+
+            # Добавляем информацию о меню и подменю в список меню
+            response_data.append(
+                MenuSchemaWithAll(
+                    id=str(menu.id),
+                    title=menu.title,
+                    description=menu.description,
+                    submenus=submenu_data
                 )
             )
         return response_data

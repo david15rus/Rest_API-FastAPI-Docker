@@ -9,6 +9,7 @@ services:
     environment:
       DATABASE_URL: "${DATABASE_URL}"
       DATABASE_URL_TEST: "${DATABASE_URL_TEST}"
+      REDIS_URL: "${REDIS_URL}"
     entrypoint: sh -c "alembic upgrade head
       && uvicorn my_app.main_onion:app --host 0.0.0.0 --port 8000
       && pytest /test"
@@ -34,6 +35,8 @@ services:
       - "5432:5432"
     networks:
       - app_network
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
     healthcheck:
       test: ["CMD-SHELL", 'pg_isready', '-U', '${POSTGRES_USER}', '-d', 'Fast_API']
       interval: 10s
@@ -51,6 +54,51 @@ services:
     expose:
       - 6379
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app_network
+    expose:
+      - 5672
+
+  celery_worker:
+    build:
+      context: tasks
+      dockerfile: Dockerfile_worker
+    environment:
+      DATABASE_URL: "${DATABASE_URL}"
+      RABBITMQ_URL: "${RABBIT_MQ_URL}"
+      RABBITMQ_USER: "guest"
+      RABBITMQ_PASS: "guest"
+    container_name: celery_worker
+    entrypoint: celery -A tasks:celery_app worker -l info
+    volumes:
+      - D:\Job\Python_projects\FastAPI(Docker)\admin:/celery-app/admin
+    networks:
+      - app_network
+
+  celery_beat:
+    build:
+      context: tasks
+      dockerfile: Dockerfile_beat
+    environment:
+      DATABASE_URL: "${DATABASE_URL}"
+      RABBITMQ_URL: "${RABBIT_MQ_URL}"
+      RABBITMQ_USER: "guest"
+      RABBITMQ_PASS: "guest"
+    container_name: celery_beat
+    entrypoint: celery -A tasks:celery_app beat -l info
+    networks:
+      - app_network
+
 networks:
   app_network:
     name: app_network
+
+volumes:
+  pgdbdata: null
+  admin: null

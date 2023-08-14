@@ -1,0 +1,14 @@
+FROM python:3.10-slim
+
+# Установка зависимостей
+WORKDIR /celery-app
+COPY requirements.txt .
+RUN apt-get update
+RUN apt-get install -y libpq-dev gcc
+RUN apt-get install -y postgresql
+RUN apt-get install -y python3-psycopg2
+RUN pip install --upgrade pip && pip install -r requirements.txt --no-cache-dir
+COPY . .
+
+# Запуск приложения
+CMD ["celery", "-A", "tasks", "beat", "-l", "info"]

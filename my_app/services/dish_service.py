@@ -38,7 +38,7 @@ class DishService:
 
     @staticmethod
     async def read_one_dish(submenu_id: str, dish_id: str, session: AsyncSession) -> DishSchema:
-        dish = await dish_repository.get_submenu_by_id(submenu_id, dish_id, session)
+        dish = await dish_repository.get_dish_by_id(submenu_id, dish_id, session)
 
         if not dish:
             raise HTTPException(status_code=404, detail='dish not found')

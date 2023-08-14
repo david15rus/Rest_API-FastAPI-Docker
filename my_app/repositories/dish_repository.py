@@ -10,8 +10,21 @@ from my_app.schemas.dish import DishSchema, DishSchemaAdd, DishSchemaUpdate
 async def create_dish(submenu_id: str,
                       dish_data: DishSchemaAdd,
                       session: AsyncSession) -> DishSchema:
-    new_dish = Dish(title=dish_data.title, description=dish_data.description,
-                    submenu_id=submenu_id, price=float(dish_data.price))
+    if dish_data.id:
+        new_dish = Dish(
+            id=dish_data.id,
+            title=dish_data.title,
+            description=dish_data.description,
+            submenu_id=submenu_id,
+            price=float(dish_data.price)
+        )
+    else:
+        new_dish = Dish(
+            title=dish_data.title,
+            description=dish_data.description,
+            submenu_id=submenu_id,
+            price=float(dish_data.price)
+        )
     session.add(new_dish)
     await session.commit()
     await session.refresh(new_dish)
@@ -28,7 +41,7 @@ async def get_all_dishes(submenu_id: str,
     return dishes.scalars()
 
 
-async def get_submenu_by_id(submenu_id: str, dish_id: str, session: AsyncSession) -> DishSchema | None:
+async def get_dish_by_id(submenu_id: str, dish_id: str, session: AsyncSession) -> DishSchema | None:
     dish = await session.execute(select(Dish).filter(
         Dish.id == dish_id, Dish.submenu_id == submenu_id))
 
