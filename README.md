@@ -31,6 +31,12 @@ API позволяет совершать CRUD операции посредст
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
     - REDIS_URI='redis://redis_app:6379'
+6. В файле docker-compose.yaml изменить строчку 80:
+    `volumes:`
+      `- D:\Job\Python_projects\FastAPI(Docker)\admin:/celery-app/admin`
+на
+    `volumes:`
+      `- <Путь до папки admin>\admin:/celery-app/admin`
 6. Cоздать образ docker-compose командой
 `docker compose build`
 7. Создать контейнеры, на основе собранного образа, командой
