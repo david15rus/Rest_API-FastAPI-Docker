@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from my_app.schemas.dish import DishSchema
+from my_app.schemas.dish_schema import DishSchema
 
 
 class SubMenuSchema(BaseModel):

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from my_app.models.models import Dish, Menu, SubMenu
-from my_app.schemas.menu import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
+from my_app.schemas.menu_schema import MenuSchema, MenuSchemaAdd, MenuSchemaUpdate
 
 
 async def create_menu(menu_data: MenuSchemaAdd,

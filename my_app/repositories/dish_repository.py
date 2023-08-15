@@ -4,7 +4,7 @@ from sqlalchemy import ScalarResult, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.models.models import Dish
-from my_app.schemas.dish import DishSchema, DishSchemaAdd, DishSchemaUpdate
+from my_app.schemas.dish_schema import DishSchema, DishSchemaAdd, DishSchemaUpdate
 
 
 async def create_dish(submenu_id: str,

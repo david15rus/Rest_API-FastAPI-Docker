@@ -5,13 +5,13 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
-from my_app.schemas.menu import (
+from my_app.schemas.menu_schema import (
     MenuSchema,
     MenuSchemaAdd,
     MenuSchemaUpdate,
     MenuSchemaWithAll,
 )
-from my_app.services.menu import MenuService
+from my_app.services.menu_service import MenuService
 
 router = APIRouter()
 
@@ -41,7 +41,7 @@ async def read_menus(skip: int = 0, limit: int = 10,
 @cache(ttl='2m')
 async def read_menus_with_all(session: AsyncSession = Depends(get_session)) -> list[MenuSchemaWithAll]:
     """
-    Получает все записи из БД из таблицы Menu.
+    Получает все записи из БД из таблицы Menu со связными блюдами и подменю.
 
     Parameters:
         session (AsyncSession): Асинхронная сессия с базой данных.
@@ -61,8 +61,7 @@ async def read_one_menu(menu_id: str,
     Получает одну запись из БД из таблицы Menu по указанному идентификатору.
 
     Parameters:
-        menu_id (str): Идентификатор меню.
-        session (AsyncSession): Асинхронная сессия с базой данных.
+        menu_id (str): Идентификатор меню.        session (AsyncSession): Асинхронная сессия с базой данных.
 
     Returns:
         JSONResponse: Ответ с информацией о меню.

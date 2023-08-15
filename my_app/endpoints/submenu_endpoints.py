@@ -5,7 +5,11 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
-from my_app.schemas.submenu import SubMenuSchema, SubMenuSchemaAdd, SubMenuSchemaUpdate
+from my_app.schemas.submenu_schema import (
+    SubMenuSchema,
+    SubMenuSchemaAdd,
+    SubMenuSchemaUpdate,
+)
 from my_app.services.submenu_service import SubMenuService
 
 router = APIRouter()

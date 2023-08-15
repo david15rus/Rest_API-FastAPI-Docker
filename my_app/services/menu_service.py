@@ -2,14 +2,14 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.repositories import menu_repository
-from my_app.schemas.dish import DishSchema
-from my_app.schemas.menu import (
+from my_app.schemas.dish_schema import DishSchema
+from my_app.schemas.menu_schema import (
     MenuSchema,
     MenuSchemaAdd,
     MenuSchemaUpdate,
     MenuSchemaWithAll,
 )
-from my_app.schemas.submenu import SubMenuSchemaWithDish
+from my_app.schemas.submenu_schema import SubMenuSchemaWithDish
 
 
 class MenuService:

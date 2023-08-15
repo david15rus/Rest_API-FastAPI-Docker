@@ -2,8 +2,8 @@ from conftest import app, async_session_maker
 from httpx import AsyncClient
 from starlette.datastructures import URLPath
 
-from my_app.schemas.menu import MenuSchemaAdd
-from my_app.services.menu import MenuService
+from my_app.schemas.menu_schema import MenuSchemaAdd
+from my_app.services.menu_service import MenuService
 
 
 async def test_create():

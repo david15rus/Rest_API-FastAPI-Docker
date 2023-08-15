@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.config import get_session
-from my_app.schemas.dish import DishSchema, DishSchemaAdd, DishSchemaUpdate
+from my_app.schemas.dish_schema import DishSchema, DishSchemaAdd, DishSchemaUpdate
 from my_app.services.dish_service import DishService
 
 router = APIRouter()

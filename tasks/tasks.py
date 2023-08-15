@@ -3,9 +3,10 @@ import os
 import pandas as pd
 from celery import Celery
 from dotenv import load_dotenv
-from models import Dish, Menu, SubMenu
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from tasks.models import Dish, Menu, SubMenu
 
 load_dotenv()
 
@@ -15,7 +16,7 @@ DB_PORT = os.environ.get('DB_PORT')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_USER = os.environ.get('DB_USER')
 DATABASE_URL = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-RABBIT_MQ_URL = 'pyamqp://guest:guest@rabbitmq:5672//'
+RABBIT_MQ_URL = os.environ.get('RABBIT_MQ_URL')
 
 celery_app = Celery(
     'tasks',
@@ -47,8 +48,8 @@ def sync_excel_with_db():
             menu_id, menu_title, menu_description, _, _, _ = row
             current_menu_id = menu_id
 
-            exist_menu = db.query(Menu).filter(Menu.id == menu_id).first()
-            if not exist_menu:
+            existing_menu = db.query(Menu).filter(Menu.id == menu_id).first()
+            if not existing_menu:
                 new_menu = Menu(
                     id=menu_id,
                     title=menu_title,
@@ -56,6 +57,16 @@ def sync_excel_with_db():
                 )
                 db.add(new_menu)
                 db.commit()
+            else:
+                if existing_menu.title != menu_title:
+                    existing_menu.title = menu_title
+                    db.commit()
+                    db.refresh(existing_menu)
+
+                if existing_menu.description != menu_description:
+                    existing_menu.description = menu_description
+                    db.commit()
+                    db.refresh(existing_menu)
 
         elif pd.notna(row[1]):
             _, submenu_id, submenu_title, submenu_description, _, _ = row
@@ -72,6 +83,16 @@ def sync_excel_with_db():
                 )
                 db.add(new_submenu)
                 db.commit()
+            else:
+                if existing_submenu.title != submenu_title:
+                    existing_submenu.title = submenu_title
+                    db.commit()
+                    db.refresh(existing_submenu)
+
+                if existing_submenu.description != submenu_description:
+                    existing_submenu.description = submenu_description
+                    db.commit()
+                    db.refresh(existing_submenu)
 
         else:
             _, _, dish_id, dish_title, dish_description, price = row
@@ -87,3 +108,19 @@ def sync_excel_with_db():
                 )
                 db.add(new_dish)
                 db.commit()
+
+            else:
+                if existing_dish.title != dish_title:
+                    existing_dish.title = dish_title
+                    db.commit()
+                    db.refresh(existing_dish)
+
+                if existing_dish.description != dish_description:
+                    existing_dish.description = dish_description
+                    db.commit()
+                    db.refresh(existing_dish)
+
+                if existing_dish.price != float(price):
+                    existing_dish.price = float(price)
+                    db.commit()
+                    db.refresh(existing_dish)

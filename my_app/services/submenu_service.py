@@ -2,7 +2,11 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from my_app.repositories import submenu_repository
-from my_app.schemas.submenu import SubMenuSchema, SubMenuSchemaAdd, SubMenuSchemaUpdate
+from my_app.schemas.submenu_schema import (
+    SubMenuSchema,
+    SubMenuSchemaAdd,
+    SubMenuSchemaUpdate,
+)
 
 
 class SubMenuService:

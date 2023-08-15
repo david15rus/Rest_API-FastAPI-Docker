@@ -84,6 +84,12 @@ services:
       - D:\Job\Python_projects\FastAPI(Docker)\admin:/celery-app/admin
     networks:
       - app_network
+    healthcheck:
+      test: [ "CMD", "celery", "events", "-b", "${RABBIT_MQ_URL}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 80s
 
   celery_beat:
     build:
@@ -97,6 +103,12 @@ services:
     entrypoint: celery -A tasks:celery_app beat -l info
     networks:
       - app_network
+    healthcheck:
+      test: [ "CMD", "celery", "events", "-b", "${RABBIT_MQ_URL}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 80s
 
 networks:
   app_network:
