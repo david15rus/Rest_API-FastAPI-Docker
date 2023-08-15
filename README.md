@@ -31,7 +31,7 @@ API позволяет совершать CRUD операции посредст
     - PGUSER='postgres'
     - DATABASE_URL='postgresql+asyncpg://postgres:postgres@postgres_restaurant/Fast_API'
     - REDIS_URL='redis://redis_app:6379'
-    - RABBIT_MQ_URL='amqp://guest:guest@rabbitmq:5672//'
+    - RABBIT_MQ_URL='pyamqp://guest:guest@rabbitmq:5672//'
 6. В файле docker-compose.yaml изменить строчку 80:
     `volumes:`
       `- D:\Job\Python_projects\FastAPI(Docker)\admin:/celery-app/admin`
