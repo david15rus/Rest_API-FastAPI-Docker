@@ -3,10 +3,9 @@ import os
 import pandas as pd
 from celery import Celery
 from dotenv import load_dotenv
+from models import Dish, Menu, SubMenu
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from tasks.models import Dish, Menu, SubMenu
 
 load_dotenv()
 
